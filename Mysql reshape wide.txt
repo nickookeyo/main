@@ -1,0 +1,144 @@
+
+
+/*
+country    attrName    attrValue     key  (these are column names)
+US         President   Obama         2
+US         Currency    Dollar        3
+China      President   Hu            4
+China      Currency    Yuan          5
+*/
+
+
+-- Create Table
+
+tutorials_tbl(
+   C_id INT NOT NULL AUTO_INCREMENT,
+   country VARCHAR(50) NOT NULL,
+   attrName VARCHAR(40) NOT NULL,
+   attrvalue VARCHAR(40) NOT NULL,
+   key int(1) NOT NULL,
+   PRIMARY KEY ( tutorial_id )
+);
+
+INSERT INTO table_name (country, attrName,attrvalue, key)
+   VALUES
+   ( US, President, Obama,'2'),
+   ( US, Currency, Dollar, '3'),
+   ( China, President, Hu, '4'),
+   ( China, Currency, Yuan, '5');
+
+
+SELECT country, 
+       MAX( IF( key='President', value, NULL ) ) AS President,
+       MAX( IF( key='Currency', value, NULL ) ) AS Currency,
+       ...
+
+FROM table 
+GROUP BY country;
+
+
+/*
+country    President    Currency    newPkey
+US         Obama        Dollar      1
+China      Hu           Yuan        2
+
+*/
+
+
+
+***********************************************************
+
+id  	info  		value
+1  	firstname  	adam
+1  	lastname  	smith
+1 	phone  		444
+2  	firstname  	victor
+2  	lastname  	hall
+2  	phone  		9999
+
+
+
+
+insert into goodTable 
+select
+bt.id,
+(select bt1.value from badTable bt1 where bt1.info = 'firstname' and bt1.id = bt.id),
+(select bt1.value from badTable bt1 where bt1.info = 'lastname' and bt1.id = bt.id),
+(select bt1.value from badTable bt1 where bt1.info = 'phone' and bt1.id = bt.id)
+from
+ badTable bt
+group by id ;
+
+
+
+
+id  	fname 	lname 	phonenum
+1 	adam	smith	444
+2 	victor	hall	9999
+
+************************************************************************
+/*
++-------------+-----------+------------------------------+
+| attributeId | ContactId | AttributeValue               |
++-------------+-----------+------------------------------+
+|           1 |         5 | Lady                         |
+|           2 |         5 | Elizabeth                    |
+|           3 |         5 | E                            |
+|           4 |         5 | Anson                        |
+|           5 |         5 |                              |
+|           6 |         5 |                              |
+|           7 |         5 |                              |
+|           8 |         5 |                              |
+|          10 |         5 | 0207 72776                   |
+|          11 |         5 |                              |
+|          12 |         5 | 0207 22996                   |
+|          13 |         5 | 0207 72761                   |
+|          14 |         5 |                              |
+|          15 |         5 |                              |
+|          60 |         5 | Lloyds                       |
+|          61 |         5 |                              |
+|           1 |        10 | Mr                           |
+|           2 |        10 | John                         |
+|           3 |        10 | J C                          |
+|           4 |        10 | Beveridge                    |
+|           5 |        10 | Esq QC                       |
+|           6 |        10 | Retired                      |
+|           7 |        10 |                              |
+|           8 |        10 |                              |
+|          10 |        10 | 0207 930                     |
+|          11 |        10 |                              |
+|          12 |        10 |                              |
+|          13 |        10 | 0207 930                     |
+|          14 |        10 |                              |
+|          15 |        10 |                              |
+|          60 |        10 |                              |
+|          61 |        10 |                              |
++-------------+-----------+------------------------------+
+*/
++-------------+-----------+------------------------------+
+| attributeId | ContactId | AttributeValue               |
++-------------+-----------+------------------------------+
+
+
+    SELECT ContactId , 
+ max(CASE when attributeId = 1 then AttributeValue end) as AttributeValue_Title ,
+ max(CASE when attributeId = 2 then AttributeValue end )as AttributeValue_ForeName ,
+ max(CASE when attributeId = 3 then AttributeValue end )as AttributeValue_Initial ,
+ max(CASE when attributeId = 4 then AttributeValue end) as AttributeValue_Surname  
+ from Table1 
+ group by ContactId
+
+
+
+
+/*
++-----------+----------------------+-------------------------+-----------------------+------------------------+
+| ContactId | AttributeValue_Title | AttributeValue_ForeName |AttributeValue_Initial | AttributeValue_Surname |
++-----------+----------------------+-------------------------+-----------------------+------------------------+
+| 5         | Lady                 | Elizabeth               | E                     |  Anson                 |
++-----------+----------------------+-------------------------+-----------------------+------------------------+
+| 10        | Mr                   | John                    | J C                   | Beveridge              |
++-----------+----------------------+-------------------------+-----------------------+------------------------+
+*/
+
+

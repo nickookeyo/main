@@ -1,0 +1,391 @@
+VISITOR.JAVA
+
+01
+// The visitor pattern is used when you have to perform
+02
+// the same action on many objects of different types
+03
+ 
+04
+interface Visitor {
+05
+     
+06
+    // Created to automatically use the right
+07
+    // code based on the Object sent
+08
+    // Method Overloading
+09
+     
+10
+    public double visit(Liquor liquorItem);
+11
+     
+12
+    public double visit(Tobacco tobaccoItem);
+13
+     
+14
+    public double visit(Necessity necessityItem);
+15
+     
+16
+}
+TAXVISITOR.JAVA
+
+01
+import java.text.DecimalFormat;
+02
+ 
+03
+// Concrete Visitor Class
+04
+ 
+05
+class TaxVisitor implements Visitor {
+06
+     
+07
+    // This formats the item prices to 2 decimal places
+08
+     
+09
+    DecimalFormat df = new DecimalFormat("#.##");
+10
+ 
+11
+    // This is created so that each item is sent to the
+12
+    // right version of visit() which is required by the
+13
+    // Visitor interface and defined below
+14
+     
+15
+    public TaxVisitor() {
+16
+    }
+17
+     
+18
+    // Calculates total price based on this being taxed
+19
+    // as a liquor item
+20
+     
+21
+    public double visit(Liquor liquorItem) {
+22
+        System.out.println("Liquor Item: Price with Tax");
+23
+        return Double.parseDouble(df.format((liquorItem.getPrice() * .18) + liquorItem.getPrice()));
+24
+    }
+25
+     
+26
+    // Calculates total price based on this being taxed
+27
+    // as a tobacco item
+28
+         
+29
+    public double visit(Tobacco tobaccoItem) {
+30
+        System.out.println("Tobacco Item: Price with Tax");
+31
+        return Double.parseDouble(df.format((tobaccoItem.getPrice() * .32) + tobaccoItem.getPrice()));
+32
+    }
+33
+     
+34
+    // Calculates total price based on this being taxed
+35
+    // as a necessity item
+36
+         
+37
+    public double visit(Necessity necessityItem) {
+38
+        System.out.println("Necessity Item: Price with Tax");
+39
+        return Double.parseDouble(df.format(necessityItem.getPrice()));
+40
+    }
+41
+ 
+42
+}
+VISITABLE.JAVA
+
+01
+interface Visitable {
+02
+ 
+03
+    // Allows the Visitor to pass the object so
+04
+    // the right operations occur on the right
+05
+    // type of object.
+06
+     
+07
+    // accept() is passed the same visitor object
+08
+    // but then the method visit() is called using
+09
+    // the visitor object. The right version of visit()
+10
+    // is called because of method overloading
+11
+     
+12
+    public double accept(Visitor visitor);
+13
+     
+14
+}
+LIQUOR.JAVA
+
+01
+class Liquor implements Visitable {
+02
+     
+03
+    private double price;
+04
+ 
+05
+    Liquor(double item) {
+06
+        price = item;
+07
+    }
+08
+ 
+09
+    public double accept(Visitor visitor) {
+10
+        return visitor.visit(this);
+11
+    }
+12
+ 
+13
+    public double getPrice() {
+14
+        return price;
+15
+    }
+16
+     
+17
+}
+NECESSITY.JAVA
+
+01
+class Necessity implements Visitable {
+02
+     
+03
+    private double price;
+04
+ 
+05
+    Necessity(double item) {
+06
+        price = item;
+07
+    }
+08
+ 
+09
+    public double accept(Visitor visitor) {
+10
+        return visitor.visit(this);
+11
+    }
+12
+ 
+13
+    public double getPrice() {
+14
+        return price;
+15
+    }
+16
+     
+17
+}
+TOBACCO.JAVA
+
+01
+class Tobacco implements Visitable {
+02
+     
+03
+    private double price;
+04
+ 
+05
+    Tobacco(double item) {
+06
+        price = item;
+07
+    }
+08
+ 
+09
+    public double accept(Visitor visitor) {
+10
+        return visitor.visit(this);
+11
+    }
+12
+ 
+13
+    public double getPrice() {
+14
+        return price;
+15
+    }
+16
+     
+17
+}
+TAXHOLIDAYVISITOR.JAVA
+
+01
+import java.text.DecimalFormat;
+02
+ 
+03
+// Concrete Visitor Class
+04
+ 
+05
+class TaxHolidayVisitor implements Visitor {
+06
+     
+07
+    // This formats the item prices to 2 decimal places
+08
+     
+09
+    DecimalFormat df = new DecimalFormat("#.##");
+10
+ 
+11
+    // This is created so that each item is sent to the
+12
+    // right version of visit() which is required by the
+13
+    // Visitor interface and defined below
+14
+     
+15
+    public TaxHolidayVisitor() {
+16
+    }
+17
+     
+18
+    // Calculates total price based on this being taxed
+19
+    // as a liquor item
+20
+     
+21
+    public double visit(Liquor liquorItem) {
+22
+        System.out.println("Liquor Item: Price with Tax");
+23
+        return Double.parseDouble(df.format((liquorItem.getPrice() * .10) + liquorItem.getPrice()));
+24
+    }
+25
+     
+26
+    // Calculates total price based on this being taxed
+27
+    // as a tobacco item
+28
+         
+29
+    public double visit(Tobacco tobaccoItem) {
+30
+        System.out.println("Tobacco Item: Price with Tax");
+31
+        return Double.parseDouble(df.format((tobaccoItem.getPrice() * .30) + tobaccoItem.getPrice()));
+32
+    }
+33
+     
+34
+    // Calculates total price based on this being taxed
+35
+    // as a necessity item
+36
+         
+37
+    public double visit(Necessity necessityItem) {
+38
+        System.out.println("Necessity Item: Price with Tax");
+39
+        return Double.parseDouble(df.format(necessityItem.getPrice()));
+40
+    }
+41
+ 
+42
+}
+VISITORTEST.JAVA
+
+view sourceprint?
+01
+public class VisitorTest {
+02
+    public static void main(String[] args) {
+03
+         
+04
+        TaxVisitor taxCalc = new TaxVisitor();
+05
+        TaxHolidayVisitor taxHolidayCalc = new TaxHolidayVisitor();
+06
+         
+07
+        Necessity milk = new Necessity(3.47);
+08
+        Liquor vodka = new Liquor(11.99);
+09
+        Tobacco cigars = new Tobacco(19.99);
+10
+         
+11
+        System.out.println(milk.accept(taxCalc) + "\n");
+12
+        System.out.println(vodka.accept(taxCalc) + "\n");
+13
+        System.out.println(cigars.accept(taxCalc) + "\n");
+14
+         
+15
+        System.out.println("TAX HOLIDAY PRICES\n");
+16
+ 
+17
+        System.out.println(milk.accept(taxHolidayCalc) + "\n");
+18
+        System.out.println(vodka.accept(taxHolidayCalc) + "\n");
+19
+        System.out.println(cigars.accept(taxHolidayCalc) + "\n");
+20
+ 
+21
+    }
+22
+}

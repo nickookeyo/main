@@ -1,0 +1,160 @@
+--http://www.sqlservergeeks.com/sql-server-designing-a-proper-backup-strategy-due-to-data-center-migration-a-real-world-example/
+
+/*
+A production server named PQR located in City "A" Data Centre has around 5 databases named P, Q, R, S, and T. 
+On the D drive of the server named ABC, inside the shared folder named DBBackups,I created 5 sub folders named P,Q,R,S,T. 
+Each subfolder had 2 more sub folders inside it named Full and Differential to hold the copy of the Full and Differential Backups. 
+To perform a Full Backup of the database named P, executed the below T-SQL query against the master database on the server named PQR.
+
+This script was included in an SQL Server Agent Job scheduled to execute daily at 0300 hrs EST.
+
+The retention period of the Full Backups was kept as 1 day which meant that at any point of time, 
+I will have atleast 1 copy of the Full Backup on the disk.
+
+*/
+--1. To perform a Full Backup of the database named P, I executed the below T-SQL query against the master database on the server named PQR.
+DECLARE @name VARCHAR(50)
+
+DECLARE @path VARCHAR(256)
+
+DECLARE @fileName VARCHAR(256)   
+DECLARE @fileDate VARCHAR(20)
+
+
+DECLARE @SQL VARCHAR(8000) 
+	 
+SET @path = '\\ABC\DBBackups\P\Full\'   
+ 
+SELECT @fileDate = CONVERT(VARCHAR(20),GETDATE(),112)  
+   + '_'  
+   + REPLACE(CONVERT(VARCHAR(20),GETDATE(),108),':','') 
+ 
+DECLARE db_cursor CURSOR FOR   
+ 
+SELECT name  
+FROM master.dbo.sysdatabases  
+WHERE name IN ('P')  
+ 
+OPEN db_cursor    
+FETCH NEXT FROM db_cursor INTO @name    
+ 
+WHILE @@FETCH_STATUS = 0    
+BEGIN    
+   SET @fileName = @path + @name + '_' + @fileDate + '.BAK'   
+   SET @SQL='BACKUP DATABASE '+CONVERT(VARCHAR(20),@name)+' TO DISK = '''+CONVERT(VARCHAR(1000),@fileName)+''''
+ 
+EXEC(@SQL)
+FETCH NEXT FROM db_cursor INTO @name   
+END   
+ 
+CLOSE db_cursor    
+DEALLOCATE db_cursor
+
+
+
+--xxxxxxxxxxxxxxxxxxxxx
+/*
+The next step was to perform a Differential Backup of the database. I decided to keep the schedule every 3 hrs. 
+I decided to keep the least minimum time just to ensure that in case of any emergency, I would have the 
+Differential Backup which happened just a couple of hours back with me. To perform a differential backup of 
+the database, I wrote the below T-SQL script.
+
+I included this T-SQL script in a SQL Server Agent job scheduled to execute every 3 hours.
+
+Once the Differential Backup strategy was in place, the next step was to perform a Transactional Log Backup. 
+The Production server already had LogShipping in place. LogShipping always contain 3 jobs
+
+Backup
+Copy
+Restore
+
+The retention period of the copies of the Transactional Log Backup was specified as 10 hrs. 
+Transactional Log Backup will not only ensure that we can perform a Point in Time Recovery but will 
+also ensure that the size of the ldf file of the database doesn’t increase drastically at all.
+
+*/
+
+DECLARE @name VARCHAR(50)
+
+DECLARE @path VARCHAR(256)
+
+DECLARE @fileName VARCHAR(256)   
+DECLARE @fileDate VARCHAR(20)
+
+DECLARE @SQL VARCHAR(8000) 
+	 
+SET @path = '\\ABC\DBBackups\P\Differential\'   
+	 
+SELECT @fileDate = CONVERT(VARCHAR(20),GETDATE(),112)  
+   + '_'  
+   + REPLACE(CONVERT(VARCHAR(20),GETDATE(),108),':','') 
+ 
+DECLARE db_cursor CURSOR FOR   
+ 
+SELECT name  
+FROM master.dbo.sysdatabases  
+WHERE name IN ('P')  
+ 
+OPEN db_cursor    
+FETCH NEXT FROM db_cursor INTO @name    
+ 
+WHILE @@FETCH_STATUS = 0    
+BEGIN    
+   SET @fileName = @path + @name + '_' + @fileDate + '.BAK'   
+   SET @SQL='BACKUP DATABASE '+CONVERT(VARCHAR(20),@name)+' TO DISK = '''+CONVERT(VARCHAR(1000),@fileName)+''' WITH DIFFERENTIAL'
+ 
+EXEC(@SQL)
+FETCH NEXT FROM db_cursor INTO @name   
+END   
+ 
+CLOSE db_cursor    
+DEALLOCATE db_cursor
+
+
+
+-- creating synchronous Db copy
+
+DROP DATABASE test100_copy
+GO
+-- connect to master and create the db as a copy of another db
+CREATE DATABASE test100_copy AS COPY OF test100 
+GO 
+-- wait for the copy to finish DECLARE @start datetimeoffset
+SELECT @start=getdate()
+DECLARE @state_desc nvarchar(120)
+DECLARE @dbid int
+DECLARE @error_code int
+DECLARE @error_desc nvarchar(4000)
+DECLARE @error_severity int
+DECLARE @error_state int
+SELECT @dbid=database_id, @state_desc=state_desc FROM sys.databases 
+WHERE name='test100_copy' 
+WHILE (@state_desc!='ONLINE') 
+BEGIN 
+    IF (@state_desc!='COPYING') 
+    BEGIN 
+        SELECT TOP 1 @error_code=error_code, 
+                @error_desc=error_desc, 
+                @error_severity=error_severity, 
+                @error_state=error_state 
+        FROM sys.dm_database_copies WHERE database_id=@dbid 
+        select @error_code, 
+                @error_desc, 
+                @error_severity, 
+                @error_state
+        RAISERROR (@error_code,@error_severity,@error_state);
+        BREAK
+    END 
+    ELSE 
+        -- delay for another 10 seconds 
+        WAITFOR DELAY '00:00:10.000'
+    SELECT @dbid=database_id, @state_desc=state_desc FROM sys.databases 
+    WHERE name='test100_copy' 
+END
+SELECT 'Completed (in mins):',DATEDIFF(mi,@start,getdate())
+GO
+-- connect to the test100_copy and 
+-- install schema * this step will not fail since DB copy is done
+CREATE TABLE t1(c1 primary key, ...) 
+GO
+

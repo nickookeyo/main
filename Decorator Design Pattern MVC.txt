@@ -1,0 +1,395 @@
+Code from the Video
+
+PIZZA.JAVA
+
+01
+// Blueprint for classes that will have decorators
+02
+ 
+03
+public interface Pizza {
+04
+     
+05
+    public String getDescription();
+06
+     
+07
+    public double getCost();
+08
+     
+09
+}
+10
+ 
+11
+ 
+12
+/*
+13
+public abstract class Pizza{
+14
+ 
+15
+     
+16
+    public abstract void setDescription(String newDescription);
+17
+    public abstract String getDescription();
+18
+     
+19
+    public abstract void setCost(double newCost);
+20
+    public abstract double getCost();
+21
+     
+22
+    // I could use getter and setter methods for every
+23
+    // potential Pizza topping
+24
+     
+25
+}
+26
+*/
+THREECHEESEPIZZA.JAVA
+
+01
+// By going this route I'll have to create a new subclass
+02
+// for an infinite number of pizza.
+03
+// I'd also have to change prices in many classes
+04
+// when just 1 Pizza topping cost changes
+05
+ 
+06
+// Inheritance is static while composition is dynamic
+07
+// Through composition I'll be able to add new functionality
+08
+// by writing new code rather than by changing current code
+09
+ 
+10
+public class ThreeCheesePizza extends Pizza{
+11
+ 
+12
+    private String description = "Mozzarella, Fontina, Parmesan Cheese Pizza";
+13
+    private double cost = 10.50;
+14
+     
+15
+    public void setDescription(String newDescription) {
+16
+         
+17
+        description = newDescription;
+18
+         
+19
+    }
+20
+ 
+21
+    public String getDescription() {
+22
+     
+23
+        return description;
+24
+         
+25
+    }
+26
+ 
+27
+    public void setCost(double newCost) {
+28
+         
+29
+        cost = newCost;
+30
+         
+31
+    }
+32
+ 
+33
+    public double getCost() {
+34
+         
+35
+        return cost;
+36
+         
+37
+    }
+38
+}
+PLAINPIZZA.JAVA
+
+01
+// Implements the Pizza interface with only the required
+02
+// methods from the interface
+03
+ 
+04
+// Every Pizza made will start as a PlainPizza
+05
+ 
+06
+public class PlainPizza implements Pizza {
+07
+  
+08
+    public String getDescription() {
+09
+         
+10
+        return "Thin dough";
+11
+     
+12
+    }
+13
+ 
+14
+    public double getCost() {
+15
+ 
+16
+        System.out.println("Cost of Dough: " + 4.00);
+17
+         
+18
+        return 4.00;
+19
+     
+20
+    }
+21
+  
+22
+}
+TOPPINGDECORATOR.JAVA
+
+01
+// Has a "Has a" relationship with Pizza. This is an
+02
+// Aggregation Relationship
+03
+ 
+04
+abstract class ToppingDecorator implements Pizza {
+05
+ 
+06
+    protected Pizza tempPizza;
+07
+     
+08
+    // Assigns the type instance to this attribute
+09
+    // of a Pizza
+10
+     
+11
+    // All decorators can dynamically customize the Pizza
+12
+    // instance PlainPizza because of this
+13
+     
+14
+    public ToppingDecorator(Pizza newPizza){
+15
+         
+16
+        tempPizza = newPizza;
+17
+         
+18
+    }
+19
+     
+20
+    public String getDescription() {
+21
+         
+22
+        return tempPizza.getDescription();
+23
+         
+24
+    }
+25
+ 
+26
+    public double getCost() {
+27
+         
+28
+        return tempPizza.getCost();
+29
+         
+30
+    }
+31
+     
+32
+}
+MOZZARELLA.JAVA
+
+01
+public class Mozzarella extends ToppingDecorator {
+02
+ 
+03
+    public Mozzarella(Pizza newPizza) {
+04
+         
+05
+        super(newPizza);
+06
+         
+07
+        System.out.println("Adding Dough");
+08
+         
+09
+        System.out.println("Adding Moz");
+10
+    }
+11
+     
+12
+    // Returns the result of calling getDescription() for
+13
+    // PlainPizza and adds " mozzarella" to it
+14
+     
+15
+    public String getDescription(){
+16
+         
+17
+        return tempPizza.getDescription() + ", mozzarella";
+18
+         
+19
+    }
+20
+     
+21
+    public double getCost(){
+22
+         
+23
+        System.out.println("Cost of Moz: " + .50);
+24
+         
+25
+        return tempPizza.getCost() + .50;
+26
+         
+27
+    }
+28
+     
+29
+}
+TOMATOSAUCE.JAVA
+
+01
+public class TomatoSauce extends ToppingDecorator {
+02
+ 
+03
+    public TomatoSauce(Pizza newPizza) {
+04
+        super(newPizza);
+05
+         
+06
+        System.out.println("Adding Sauce");
+07
+    }
+08
+     
+09
+    // Returns the result of calling getDescription() for
+10
+    // PlainPizza, Mozzarella and then TomatoSauce
+11
+     
+12
+    public String getDescription(){
+13
+         
+14
+        return tempPizza.getDescription() + ", tomato sauce";
+15
+         
+16
+    }
+17
+     
+18
+    public double getCost(){
+19
+         
+20
+        System.out.println("Cost of Sauce: " + .35);
+21
+         
+22
+        return tempPizza.getCost() + .35;
+23
+         
+24
+    }
+25
+     
+26
+}
+PIZZAMAKER.JAVA
+
+view sourceprint?
+01
+public class PizzaMaker {
+02
+     
+03
+    public static void main(String[] args){
+04
+         
+05
+        // The PlainPizza object is sent to the Mozzarella constructor
+06
+        // and then to the TomatoSauce constructor
+07
+         
+08
+        Pizza basicPizza = new TomatoSauce(new Mozzarella(new PlainPizza()));
+09
+         
+10
+        System.out.println("Ingredients: " + basicPizza.getDescription());
+11
+         
+12
+        System.out.println("Price: " + basicPizza.getCost());
+13
+         
+14
+    }
+15
+     
+16
+}

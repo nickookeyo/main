@@ -1,0 +1,20 @@
+public class FactoryPattern {
+
+	public static class PersonFactoryPattern {
+
+	public static Person getPerson(String person_id, String fname,String mname,String laname,Date DateOfBirth,String gender,String fname,)
+	
+	if (gender.equalsIgnoreCase("M")){
+	return new Male(person_id);
+	} else if (gender.equalsIgnoreCase("F")){
+	return new Female(person_id);
+	} //so on..
+	return null;
+	}
+}
+
+ static abstract class person{
+	Person(String person_id){
+	this person_id=person_id;
+	} 
+}

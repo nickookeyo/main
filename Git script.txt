@@ -1,0 +1,38 @@
+088:03 AM 8/23/20171cd E:\Git|MyProgrammingProject
+
+E:\Git|MyProgrammingProject [master]> git config --global user.name "Nicky Ok"
+
+E:\Git|MyProgrammingProject [master]> git config --global user.email "nickokeyo2000@gmail.com"
+
+git init
+
+git init "My Repository" /* creates the folder 'My Repository' and initializes it within the current directory*/
+
+cd "My Repository" /*change directory to "My Repository" */
+
+git --version
+git ignore
+
+git add <filename>
+git add .
+git add --all /*adds deleted files*/
+
+git status
+
+git commit
+git commit - m "commit msg"
+
+git clone
+
+cls /*clear the command window*/
+
+notepad README.md /*??? creating a file on command line ????*/
+
+git branch
+git branch "Branch name"
+
+git checkout "Branch name" /*can also be used to switch brances*/
+
+ls /* list content of the git enabled folder*/
+
+
